@@ -1,0 +1,57 @@
+apiVersion: cache.example.com/v1alpha1
+kind: DfJob
+metadata:
+  name: example-dfjob-0
+spec:
+  # Add fields here
+  dfreplicaSpecs:
+    PS:
+      replicas: 4
+      template:
+        spec:
+          containers:
+            - name: tensorflow-container
+              image: registry.njuics.cn/kubeflow/tensorflow:1.12.0-gpu
+              image_pull_policy: "IfNotPresent"
+              restart_policy: "Never"
+              command:
+                - "python"
+                - "/data/tensorflow/tf_cnn_benchmarks.1.12/tf_cnn_benchmarks.py"
+                - "--local_parameter_device=gpu"
+                - "--num_gpus=1"
+                - "--batch_size=16"
+                - "--model=resnet50"
+                - "--variable_update=distributed_replicated"
+              resources:
+                limits:
+                  cpu: 2.0
+                  memory: 4Gi
+                requests:
+                  cpu: 2.0
+                  memory: 4Gi
+    Worker:
+      replicas: 2
+      template:
+        spec:
+          containers:
+            - name: tensorflow-container
+              image: registry.njuics.cn/kubeflow/tensorflow:1.12.0-gpu
+              image_pull_policy: "IfNotPresent"
+              restart_policy: "Never"
+              command:
+                - "python"
+                - "/data/tensorflow/tf_cnn_benchmarks.1.12/tf_cnn_benchmarks.py"
+                - "--local_parameter_device=gpu"
+                - "--num_gpus=1"
+                - "--batch_size=16"
+                - "--model=resnet50"
+                - "--variable_update=distributed_replicated"
+              resources:
+                limits:
+                  cpu: 2.0
+                  memory: 6Gi
+                  nvidia.com/gpu: 1                                    
+                requests:
+                  cpu: 2.0
+                  memory: 6Gi
+                  nvidia.com/gpu: 1                  
